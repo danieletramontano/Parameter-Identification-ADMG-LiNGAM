@@ -1,0 +1,10 @@
+name: causal_effect_identification
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - networkx
+  - matplotlib
+  - scipy
+  - numpy
+  - multiprocess

@@ -1,0 +1,72 @@
+---
+title: "example_notebook"
+output:
+---
+
+```{r}
+source("packages_install.R")
+source("utils.R")
+set.seed(1)
+```
+
+## Define a graph and an error distribution
+
+```{r}
+#IV graph here, can choose any identifiable ADMG
+g_bid = graph(edges = c(2,3), directed = FALSE) # Bidirected part of the graph
+g_dir = graph(edges = c(1,2, 2, 3), directed = TRUE) # Directed part of the graph
+
+dir_edges = matrix(as_edgelist(g_dir), ncol = 2) 
+
+n = 200 # sample size
+distribution = "Laplace" #Can choose between "Uniform" and "Laplace"
+kernel_choice = "poly" # Can chosse between "poly" and "rbf"
+poly_degree = 2 # Degree of the polynomial kernel, can be any integer value
+```
+
+## Simulate data
+
+```{r}
+sampled_vars = mixed_graph_data_var(g_bid = g_bid,
+                                    g_dir = g_dir) # Sample variance parameters
+
+sampled_weights = mixed_graph_data_weights(g_bid = g_bid,
+                                           g_dir = g_dir) # Sample edge coefficients
+
+par_true = sampled_weights$weights_obs # Store true parameters
+sampled_data = mixed_graph_data(g_bid = g_bid,
+                                g_dir = g_dir, 
+                                data_size = n,
+                                distr = distribution,
+                                weights_obs = par_true,
+                                weights_hid = sampled_weights$weights_hid,
+                                varr_obs = sampled_vars$varr_obs,
+                                varr_hid = sampled_vars$varr_hid) # Sample data
+```
+
+## Initialize parameter at the regression coefficients
+
+```{r}
+data_cov = sample.cov(data) #Compute observed covariance matrix
+par_init = c() 
+for(i in 1:dim(dir_edges)[1]){
+par_init[i] = data_cov[dir_edges[i, 1], dir_edges[i, 2]]/data_cov[dir_edges[i, 1], dir_edges[i, 1]]}
+```
+
+## Run optimization
+
+```{r}
+par_estimate = parameter_estimation(data = sampled_data$data,
+                                    g_dir = g_dir,
+                                    g_bid = g_bid,
+                                    par_init = par_init,
+                                    ker = kernel_choice,
+                                    poly_degree = poly_degree)
+```
+
+## Compare estimate with the true value
+
+```{r}
+print(paste("Loss at the estimated paramter", sum((par_estimate - par_true)^2)))
+print(paste("Loss at the inital paramter", sum((par_init - par_true)^2)))
+```

@@ -1,0 +1,3 @@
+useDynLib(empLikSem)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")

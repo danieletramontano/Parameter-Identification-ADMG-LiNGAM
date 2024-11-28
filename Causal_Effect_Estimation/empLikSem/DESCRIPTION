@@ -1,0 +1,15 @@
+Package: empLikSem
+Type: Package
+Title: Fits SEMs with Empirical Likelihood
+Version: 1.0.1
+Author: Y. Samuel Wang
+Maintainer: Y. Samuel Wang <ysw7@cornell.edu>
+Description: Fits Structural Equation Models with empirical likelihood by profiling out the error covariance parameters
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 0.12.10)
+LinkingTo: Rcpp, RcppArmadillo (>= 0.5.400.2.0), mvtnorm, lbfgs
+RoxygenNote: 7.2.3
+NeedsCompilation: yes
+Packaged: 2024-02-12 20:28:21 UTC; ysw7
