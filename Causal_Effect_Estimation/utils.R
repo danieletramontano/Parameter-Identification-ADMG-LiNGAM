@@ -24,9 +24,9 @@ sample.cov <- function(X, Y=NULL){
 }
 
 runiff <- function(n, min = 0, max = 1){
- if(sample(c(1,-1), 1) > 0){
-   return(runif(n, min = 0.5, max = max))
- }
+  if(sample(c(1,-1), 1) > 0){
+    return(runif(n, min = 0.5, max = max))
+  }
   return(runif(n, min = min, max = -0.5))
 }
 
@@ -133,7 +133,7 @@ mixed_graph_data <- function(g_bid = NULL, g_dir = NULL, data_size = 500, distr 
   for (j in 1:length(V(g_dir))) {
     if (distr == 'Laplace') {
       err[, j] <- rlaplace(data_size, 0, 1) * varr_obs[j]
-      } else if(distr == 'Uniform'){
+    } else if(distr == 'Uniform'){
       err[, j] <- runif(data_size, -1, 1) * varr_obs[j]
     }
   }
@@ -224,11 +224,11 @@ compute_HSIC <- function(K, L){
 # Returns:
 #   A numeric vector of the optimized parameters.
 parameter_estimation <- function(data,
-                     g_dir,
-                     g_bid,
-                     par_init,
-                     ker = "poly",
-                     poly_degree = 2){
+                                 g_dir,
+                                 g_bid,
+                                 par_init,
+                                 ker = "poly",
+                                 poly_degree = 2){
   dir_edges = matrix(as_edgelist(g_dir), ncol = 2)
   B = as.matrix(as_adjacency_matrix(g_dir))
   O = as.matrix(as_adjacency_matrix(g_bid))
@@ -258,7 +258,7 @@ parameter_estimation <- function(data,
     loss_fun = 0
     for(i in 1:(g_size-1)){
       for(j in (i+1):g_size){
-        if((O[i, j] == 0) && (sum(B[, c(i, j)]) > 0)){
+        if(O[i, j] == 0){
           if(ker == "poly"){
             rbfkernel_1 <- polydot(degree = poly_degree)
             rbfkernel_2 <- polydot(degree = poly_degree)
@@ -376,7 +376,7 @@ fixed_graph_experiments <- function(df_params,
   }
 
   if(par_bool == T){
-    n.cores <- parallel::detectCores() - 1
+    n.cores <- parallel::detectCores()
     print(paste("opened",n.cores, "parallel threads"))
     my.cluster <- parallel::makeCluster(
       n.cores,
@@ -387,7 +387,7 @@ fixed_graph_experiments <- function(df_params,
 
   (vals <- foreach(r = (df_params$reps),
                    poly_degree = (df_params$poly_degrees),
-                   n = (df_params$n_sizes)) %dopar% {
+                   n = (df_params$n_sizes)) %do% {
 
                      rep_ind = which(unique(df_params$reps) == r)
                      out = out_list[[rep_ind]]
@@ -403,7 +403,7 @@ fixed_graph_experiments <- function(df_params,
                      data =  data - t(matrix(colMeans(data), ncol(data), n))
                      data_cov = sample.cov(data)
 
-                     optim_fn <- function(par_init, ker = "cov_matrix", mask = NA){
+                     optim_fn <- function(par_init, ker = "poly", mask = NA){
                        if (is.na(mask[1])) {
                          mask <- rep(TRUE, length(par_init))  # default: all parameters optimized
                        }
@@ -433,27 +433,20 @@ fixed_graph_experiments <- function(df_params,
                          }
                          adj_matrix <- t(adj_matrix)
                          latent_data <- t(adj_matrix %*% t(data))
-                         latent_covariance <- sample.cov(latent_data)
-                         latent_tmom <- sample.third.moment(latent_data)
-                         loss_fun <- 0
+                         loss_fun <- 1
                          for (i in 1:(g_size - 1)) {
                            for (j in (i + 1):g_size) {
                              if ((O[i, j] == 0) && (sum(B[, c(i, j)]) > 0)) {
-                               if (ker == "cov_matrix"){
-                                 loss_fun <- loss_fun + latent_covariance[i, j]**2
-                                 if(poly_degree > 2){loss_fun <- loss_fun + latent_tmom[i,i,j]**2 + latent_tmom[i,j,j]**2}}
-                               else if (ker == "poly") {
+                               if (ker == "poly") {
                                  rbfkernel_1 <- polydot(degree = poly_degree)
                                  rbfkernel_2 <- polydot(degree = poly_degree)
                                } else if (ker == "RBF") {
                                  rbfkernel_1 <- rbfdot(sigma = median_heu[i])
                                  rbfkernel_2 <- rbfdot(sigma = median_heu[j])
                                }
-                               if (ker != "cov_matrix"){
-                                 H1 <- kernelMatrix(rbfkernel_1, matrix(c(latent_data[, i], latent_data[, i]), ncol = 2, byrow = F))
-                                 H2 <- kernelMatrix(rbfkernel_2, matrix(c(latent_data[, j], latent_data[, j]), ncol = 2, byrow = F))
-                                 loss_fun <- loss_fun + compute_HSIC(H1, H2)
-                               }
+                               H1 <- kernelMatrix(rbfkernel_1, matrix(c(latent_data[, i], latent_data[, i]), ncol = 2, byrow = F))
+                               H2 <- kernelMatrix(rbfkernel_2, matrix(c(latent_data[, j], latent_data[, j]), ncol = 2, byrow = F))
+                               loss_fun <- loss_fun + compute_HSIC(H1, H2)
                              }
                            }
                          }
@@ -489,14 +482,14 @@ fixed_graph_experiments <- function(df_params,
 
 
                      #for(i in 1:dim(dir_edges)[1]){
-                      #par_init[i] = data_cov[dir_edges[i, 1], dir_edges[i, 2]]/data_cov[dir_edges[i, 1], dir_edges[i, 1]]
+                     #par_init[i] = data_cov[dir_edges[i, 1], dir_edges[i, 2]]/data_cov[dir_edges[i, 1], dir_edges[i, 1]]
                      #}
 
                      data_loss_cov = evaluation_metric(par_init, true_weights, ret_vector = ret_vector)
                      #sum(((par_init - true_weights)^2/sum(true_weights^2)))
 
                      #Optimize from regression coefficient
-                     op = optim_fn(par_init, ker = "cov_matrix", mask = mask)
+                     op = optim_fn(par_init, ker = "poly", mask = mask)
                      data_loss_poly <- evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
                      if(only_polynomial_kernel == FALSE){
@@ -521,7 +514,7 @@ fixed_graph_experiments <- function(df_params,
                        op = optim_fn(el_init, ker = "RBF", mask = mask)
                        data_loss_el_optim_rbf = evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                       op = optim_fn(el_init, ker = "cov_matrix", mask = mask)
+                       op = optim_fn(el_init, ker = "poly", mask = mask)
                        data_loss_el_optim_poly = evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
                        op = optim_fn(el_init, ker = "RBF", mask = mask)
@@ -535,7 +528,7 @@ fixed_graph_experiments <- function(df_params,
                      }
 
                      #Initialization at true value
-                     op = optim_fn(true_weights, ker = "cov_matrix", mask = mask)
+                     op = optim_fn(true_weights, ker = "poly", mask = mask)
                      data_loss_true_poly =  evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
                      if(only_polynomial_kernel == TRUE){
