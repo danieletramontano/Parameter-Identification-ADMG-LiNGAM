@@ -10,8 +10,6 @@ The code is organized into three main parts:
 
 2. **Causal Effect Estimation (R)**
 
-3. **Model Equivalence (Macaulay2)**
-
 ## 1. Causal Effect Identification (Python)
 
 This folder contains the Python code and necessary resources to certify the criterion of Theorems 4.2 -4.3, and to reproduce the experiments of Section 8.1.
@@ -73,27 +71,3 @@ This folder contains the R code and necessary resources to execute the optimizat
    - Execute `cycle_simulations_laplace.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from a Laplace distribution.
    - Execute `cycle_simulations_uniform.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from an Uniform distribution.
    - Execute `plots.R` to reproduce Fig. 12 from the main paper, and Fig.1-2 from the supplement.
-
-## 3. Model Equivalence (Macaulay2)
-
-This folder contains the Macaulay2 code for the model identification algorithm described in Theorem 6.2, and to reproduce the experiments from Example 6.1.
-
-### Contents:
-
-- **model_identification.m2**: Macaulay2 script containing the code for the algorithm described in Theorem 6.2.
-- **example_script.m2**: Macaulay2 script to with a simple example of how to use the algorithm.
-- **experiment_from_the_paper.m2**: Macaulay2 script to replicate the reproduce the experiments from Example 6.1.
-
-### Instructions:
-
-1. **Setup Environment**:
-   - Ensure you have Macaulay2 installed. Download it from [Macaulay2 official website](http://www2.macaulay2.com/Macaulay2/).
-
-2. **Run the Script**:
-   - Open Macaulay2 and load the script:
-
-     ```m2
-     load "model_identification.m2"
-     ```
-
-   - Follow the instructions within the script to replicate the experiments.
