@@ -68,6 +68,8 @@ This folder contains the R code and necessary resources to execute the optimizat
 3. **Reproduce Experiments**:
    - Execute `iv_simulations.R` to reproduce the experiments and generate output data for the IV graph.
    - Execute `dc_simulations.R` to reproduce the experiments and generate output data for the graph in Fig. 11.
+   - Execute `dc_simulations_hyperparamters.R` to reproduce the experiments and generate output data for the graph in Fig. 11, with varying degree of the polynomial kernel.
+   - Execute `partial_identification_simulations.R` to reproduce the experiments and generate output data for the graph in Fig. 4.
    - Execute `cycle_simulations_laplace.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from a Laplace distribution.
    - Execute `cycle_simulations_uniform.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from an Uniform distribution.
-   - Execute `plots.R` to reproduce Fig. 12 from the main paper, and Fig.1-2 from the supplement.
+   - Execute `plots.R` to reproduce Fig. 12 from the main paper, and Fig.3-6 from the supplement.
