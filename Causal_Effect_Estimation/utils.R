@@ -322,8 +322,7 @@ fixed_graph_experiments <- function(df_params,
                                     ret_vector = F,
                                     distribution = "Laplace",
                                     run_empirical_likelyhood = TRUE,
-                                    only_polynomial_kernel = FALSE,
-                                    mask = NA){
+                                    run_rbf_kernel = TRUE){
 
   B = as.matrix(as_adjacency_matrix(g_dir))
   O = as.matrix(as_adjacency_matrix(g_bid))
@@ -403,14 +402,7 @@ fixed_graph_experiments <- function(df_params,
                      data =  data - t(matrix(colMeans(data), ncol(data), n))
                      data_cov = sample.cov(data)
 
-                     optim_fn <- function(par_init, ker = "poly", mask = NA){
-                       if (is.na(mask[1])) {
-                         mask <- rep(TRUE, length(par_init))  # default: all parameters optimized
-                       }
-
-                       par_fixed <- par_init[!mask]
-                       par_masked_init <- par_init[mask]
-
+                     optim_fn <- function(par_init, ker = "poly"){
                        if (ker == "RBF") {
                          adj_matrix <- matrix(0, nrow = g_size, ncol = g_size)
                          for (i in 1:dim(dir_edges)[1]) {
@@ -422,14 +414,10 @@ fixed_graph_experiments <- function(df_params,
                          median_heu <- apply(latent_data, 2, function (x) 1 / sqrt(median(dist(x)) / 2))
                        }
 
-                       fn <- function(weight_masked) {
-                         # Reconstruct full weight vector
-                         weight <- par_init
-                         weight[mask] <- weight_masked
-
+                       fn <- function(par_init) {
                          adj_matrix <- diag(g_size)
                          for (i in 1:dim(dir_edges)[1]) {
-                           adj_matrix[dir_edges[i, 1], dir_edges[i, 2]] <- -weight[i]
+                           adj_matrix[dir_edges[i, 1], dir_edges[i, 2]] <- -par_init[i]
                          }
                          adj_matrix <- t(adj_matrix)
                          latent_data <- t(adj_matrix %*% t(data))
@@ -458,15 +446,10 @@ fixed_graph_experiments <- function(df_params,
 
                        op <- optim(
                          fn = fn,
-                         gr = function(weight_masked) pracma::grad(fn, weight_masked, heps = 6e-06),
-                         par = par_masked_init,
+                         gr = function(weight) pracma::grad(fn, weight, heps = 6e-06),
+                         par = par_init,
                          method = "L-BFGS-B"
                        )
-
-                       # Reconstruct full parameter vector for return
-                       full_result <- par_init
-                       full_result[mask] <- op$par
-                       op$par <- full_result
                        return(op)
                      }
 
@@ -489,15 +472,15 @@ fixed_graph_experiments <- function(df_params,
                      #sum(((par_init - true_weights)^2/sum(true_weights^2)))
 
                      #Optimize from regression coefficient
-                     op = optim_fn(par_init, ker = "poly", mask = mask)
+                     op = optim_fn(par_init, ker = "poly")
                      data_loss_poly <- evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                     if(only_polynomial_kernel == FALSE){
-                       op = optim_fn(par_init, ker = "RBF", mask = mask)
+                     if(run_rbf_kernel == TRUE){
+                       op = optim_fn(par_init, ker = "RBF")
                        data_loss_rbf <- evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
 
-                       op = optim_fn(op$par, ker = "RBF", mask = mask)
+                       op = optim_fn(op$par, ker = "RBF")
                        data_loss_poly_rbf <- evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
                      }else{
                        data_loss_rbf <- evaluation_metric(true_weights, true_weights, ret_vector = ret_vector)
@@ -511,13 +494,13 @@ fixed_graph_experiments <- function(df_params,
                        el_init = c(1:dim(dir_edges)[1])
                        data_loss_el =  sum(((el_init  - true_weights)^2/sum(true_weights^2)))
                        #Optimize from empirical likelihood
-                       op = optim_fn(el_init, ker = "RBF", mask = mask)
+                       op = optim_fn(el_init, ker = "RBF")
                        data_loss_el_optim_rbf = evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                       op = optim_fn(el_init, ker = "poly", mask = mask)
+                       op = optim_fn(el_init, ker = "poly")
                        data_loss_el_optim_poly = evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                       op = optim_fn(el_init, ker = "RBF", mask = mask)
+                       op = optim_fn(el_init, ker = "RBF")
                        data_loss_el_optim_poly_rbf = evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
                      }else{
@@ -528,14 +511,14 @@ fixed_graph_experiments <- function(df_params,
                      }
 
                      #Initialization at true value
-                     op = optim_fn(true_weights, ker = "poly", mask = mask)
+                     op = optim_fn(true_weights, ker = "poly")
                      data_loss_true_poly =  evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                     if(only_polynomial_kernel == TRUE){
-                       op = optim_fn(true_weights, ker = "RBF", mask = mask)
+                     if(run_rbf_kernel == TRUE){
+                       op = optim_fn(true_weights, ker = "RBF")
                        data_loss_true_rbf =  evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
 
-                       op = optim_fn(op$par, ker = "RBF", mask = mask)
+                       op = optim_fn(op$par, ker = "RBF")
                        data_loss_true_poly_rbf =  evaluation_metric(op$par, true_weights, ret_vector = ret_vector)
                      }else{
                        data_loss_rbf <- evaluation_metric(true_weights, true_weights, ret_vector = ret_vector)

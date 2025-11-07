@@ -17,7 +17,7 @@ dc_sols = fixed_graph_experiments(df_params = df_params,
                                   g_dir = make_graph(edges = c(1,2, 1, 3, 2, 3), directed = TRUE),
                                   distribution = "Laplace",
                                   run_empirical_likelyhood = FALSE,
-                                  only_polynomial_kernel = TRUE)
+                                  run_rbf_kernel =  FALSE)
 
 dc_sols$graph = 'Double Confounder'
 saveRDS(dc_sols,file="Data/dc_hyperparameters.Rds")

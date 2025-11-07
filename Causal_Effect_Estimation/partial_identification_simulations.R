@@ -13,7 +13,7 @@ df_params <- expand.grid(
 refactor_df <- function(df, edge_list =  c("2->4", "3->4")) {
   loss_list <- df$loss
   num_dims <- length(loss_list[[1]])
-  
+
   # Initialize an empty list to collect new data frames
   df_list <- list()
   # Iterate over dimensions to process the loss
@@ -23,11 +23,11 @@ refactor_df <- function(df, edge_list =  c("2->4", "3->4")) {
         loss = sapply(loss_list, function(x) x[i]),
         graph = edge_list[i]
       )
-    
+
     # Add the processed data frame to the list
     df_list[[i]] <- temp_df
   }
-  
+
   # Combine all the data frames
   final_df <- bind_rows(df_list)
   return(final_df)
@@ -47,8 +47,8 @@ ww <-as.numeric(Sys.getenv("SLURM_PROCID"))+1; { ##Running on HPC using SLURM wo
                                       ret_vector = T,
                                       distribution = "Laplace",
                                       run_empirical_likelyhood = FALSE,
-                                      only_polynomial_kernel = TRUE)
-    
+                                      run_rbf_kernel = FALSE)
+
     pi_sols_refactor = refactor_df(pi_sols)
     saveRDS(pi_sols_refactor,file="Data/pi_laplace_data.Rds")
   }
@@ -64,8 +64,9 @@ ww <-as.numeric(Sys.getenv("SLURM_PROCID"))+1; { ##Running on HPC using SLURM wo
                                                               3, 4), directed = TRUE),
                                       ret_vector = T,
                                       distribution = "Uniform",
-                                      run_empirical_likelyhood = FALSE)
-    
+                                      run_empirical_likelyhood = FALSE,
+                                      run_rbf_kernel = FALSE)
+
     pi_sols_refactor = refactor_df(pi_sols)
     saveRDS(pi_sols_refactor,file="Data/pi_uniform_data.Rds")
   }
