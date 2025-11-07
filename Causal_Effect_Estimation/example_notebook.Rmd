@@ -4,8 +4,7 @@ output:
 ---
 
 ```{r}
-source("packages_install.R")
-source("utils.R")
+source("setup.R")
 set.seed(1)
 ```
 
@@ -16,7 +15,7 @@ set.seed(1)
 g_bid = graph(edges = c(2,3), directed = FALSE) # Bidirected part of the graph
 g_dir = graph(edges = c(1,2, 2, 3), directed = TRUE) # Directed part of the graph
 
-dir_edges = matrix(as_edgelist(g_dir), ncol = 2) 
+dir_edges = matrix(as_edgelist(g_dir), ncol = 2)
 
 n = 200 # sample size
 distribution = "Laplace" #Can choose between "Uniform" and "Laplace"
@@ -35,20 +34,21 @@ sampled_weights = mixed_graph_data_weights(g_bid = g_bid,
 
 par_true = sampled_weights$weights_obs # Store true parameters
 sampled_data = mixed_graph_data(g_bid = g_bid,
-                                g_dir = g_dir, 
+                                g_dir = g_dir,
                                 data_size = n,
                                 distr = distribution,
                                 weights_obs = par_true,
                                 weights_hid = sampled_weights$weights_hid,
                                 varr_obs = sampled_vars$varr_obs,
                                 varr_hid = sampled_vars$varr_hid) # Sample data
+data = sampled_data$data
 ```
 
 ## Initialize parameter at the regression coefficients
 
 ```{r}
 data_cov = sample.cov(data) #Compute observed covariance matrix
-par_init = c() 
+par_init = c()
 for(i in 1:dim(dir_edges)[1]){
 par_init[i] = data_cov[dir_edges[i, 1], dir_edges[i, 2]]/data_cov[dir_edges[i, 1], dir_edges[i, 1]]}
 ```
@@ -56,7 +56,7 @@ par_init[i] = data_cov[dir_edges[i, 1], dir_edges[i, 2]]/data_cov[dir_edges[i, 1
 ## Run optimization
 
 ```{r}
-par_estimate = parameter_estimation(data = sampled_data$data,
+par_estimate = parameter_estimation(data = data,
                                     g_dir = g_dir,
                                     g_bid = g_bid,
                                     par_init = par_init,

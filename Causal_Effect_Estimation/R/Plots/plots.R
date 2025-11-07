@@ -1,6 +1,3 @@
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) # set working directory to the current location of the file
-source(file.path("packages_install.R"))
-
 # Generates a plot of mean loss against sample size for different methods and graphs.
 # Arguments:
 #   data: (data frame) Input data containing loss values and parameters.
@@ -287,4 +284,3 @@ produce_boxplot(dc_hyperparameters_data,
              grid_size = 27,
              figure_name = "pi_uniform.png",
              save_fig = F)
-

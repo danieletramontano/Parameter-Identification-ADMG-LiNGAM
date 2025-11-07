@@ -54,22 +54,18 @@ This folder contains the R code and necessary resources to execute the optimizat
 ### Instructions:
 
 1. **Setup Environment**:
-   - Ensure you have R and RStudio installed.
+   - Ensure you have R (version 4.3.0) and RStudio installed.
 
    - Install the required packages by running:
 
      ```r
-     source("install_packages.R")
+     source("setup.R")
      ```
 
 2. **Run Example Notebook**:
-   - Open `example_notebook.Rmd` in RStudio to see a step-by-step guide on using the algorithms.
+   - Open `example_notebook.Rmd` to see a step-by-step guide on using the algorithm.
 
 3. **Reproduce Experiments**:
-   - Execute `iv_simulations.R` to reproduce the experiments and generate output data for the IV graph.
-   - Execute `dc_simulations.R` to reproduce the experiments and generate output data for the graph in Fig. 11.
-   - Execute `dc_simulations_hyperparamters.R` to reproduce the experiments and generate output data for the graph in Fig. 11, with varying degree of the polynomial kernel.
-   - Execute `partial_identification_simulations.R` to reproduce the experiments and generate output data for the graph in Fig. 4.
-   - Execute `cycle_simulations_laplace.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from a Laplace distribution.
-   - Execute `cycle_simulations_uniform.R` to reproduce the experiments and generate output data for the *3-cycle* of Fig. 9, and the error terms samples from an Uniform distribution.
-   - Execute `plots.R` to reproduce Fig. 12 from the main paper, and Fig.3-6 from the supplement.
+   - Run the files in the `R/Experiments` folder to reproduce the experiments and generate output data.
+   - Run the files in the `R/Plots` folder to generate the plots from the output data.
+

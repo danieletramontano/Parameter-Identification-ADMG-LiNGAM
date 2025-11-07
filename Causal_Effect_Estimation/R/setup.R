@@ -1,5 +1,4 @@
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) # set working directory to the current location of the file
-
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) # set working directory to the current location of the file
 is_installed <- function(package) {
   return(package %in% installed.packages()[,"Package"])
 }
@@ -56,3 +55,5 @@ library(dplyr)
 library(tidyr)
 
 # Now, the required libraries are installed and loaded
+
+source(file.path("Main/main.R"))
